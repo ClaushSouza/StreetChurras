@@ -1,0 +1,94 @@
+import * as React from 'react';
+import { Appearance, StatusBar } from 'react-native';
+import { ScreenOrientation } from 'expo';
+import AppLoading from 'expo-app-loading';
+import { device, func } from './src/constants';
+
+// main navigation stack
+import RootStack from './src/navigation/RootStack';
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      homens: '',
+      mulheres: '',
+      crianças: '',
+      bebidas: '',
+      vegetarianos: '',
+      carnes: 0,
+      acompanhamentos: 0,
+      cerveja: 0,
+      carvao: 0,
+      resultado: [
+        {
+          title: 'Carne Bovina',
+          descricao: 'Contra Filé, Maminha, Cupim...',
+          amount: '',
+          unit: '' 
+        }
+      ]
+    }
+
+    this.state = {
+      isLoading: true,
+      theme: 'light'
+    };
+
+    // is iPad?
+    if (device.isPad) {
+      ScreenOrientation.allowAsync(
+        ScreenOrientation.Orientation.ALL_BUT_UPSIDE_DOWN
+      );
+    }
+
+    this.updateTheme = this.updateTheme.bind(this);
+  }
+
+  componentDidMount() {
+    // get system preference
+    const colorScheme = Appearance.getColorScheme();
+    console.log('react-native::Appearance', colorScheme);
+
+    // if light or dark
+    if (colorScheme !== 'no-preference') {
+      this.setState({
+        theme: colorScheme
+      });
+    }
+  }
+
+  updateTheme(themeType) {
+    this.setState({
+      theme: themeType
+    });
+  }
+
+  render() {
+    const { isLoading, theme } = this.state;
+    const iOSStatusType = theme === 'light' ? 'dark-content' : 'light-content';
+
+    if (isLoading) {
+      return (
+        <AppLoading
+          onError={() => {
+            // console.warn
+          }}
+          onFinish={() => this.setState({ isLoading: false })}
+          startAsync={func.loadAssetsAsync}
+        />
+      );
+    }
+
+    return (
+      <React.Fragment>
+        <StatusBar barStyle={device.iOS ? iOSStatusType : 'light-content'} />
+        
+        <RootStack theme={theme} />
+      </React.Fragment>
+    );
+  }
+}
+
+export default App;
